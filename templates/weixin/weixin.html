@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Wechant Tools</title>
+     <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+  <button id='sendMsg'>发送消息</button><input type="text" id='message' placeholder="输入请求添加好友发送的信息" style="width: 12%" />
+
+      <table class="table" id="contact">
+        <tr>
+          <th><input type="checkbox" name="all" class="checkall" />全选</th><th>名字</th><th>头像</th>
+        </tr>
+        {% for member in member_list %}
+          <tr>
+            <td><input value="{{ member.UserName }}" name="c_check_list" type="checkbox" /></td><td>{{ member.NickName }} </td><td> <img src="https://wx.qq.com{{ member.HeadImgUrl }}"/></td>
+          </tr>
+        {% endfor %}
+      </table>
+      <button id='verify'>发送添加好友信息</button> <input type="text" id="verify_info"  placeholder="输入请求添加好友发送的信息" style="width: 12%" />
+      <table class="table" id="group">
+          <tr>
+            <th><input type="checkbox" name="all" class="checkall" />全选</th><th>群组名</th><th>头像</th>
+          </tr>
+          {% for contact in contact_list %}
+            {% if "@@" in contact.UserName %}
+            <tr>
+               <td><input name="check_list" value="{{ contact.UserName }}" type="checkbox"/> </td><td>{{ contact.NickName }}</td><td><img src ="https://wx.qq.com{{ contact.HeadImgUrl }}" /></td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+      </table>
+  </body>
+</html>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="/static/js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="/static/js/bootstrap.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#sendMsg").click(function(){
+          var all = $("#contact .checkall");
+          var cklist = $("#contact input[name='c_check_list']");
+          var clist = $("#group input[name='check_list']");
+          var v_array = [];
+          $.each(cklist, function(i, n){
+              var v = $(n).prop('value');
+              if ($(n).prop("checked")){
+                v_array.push(v)
+              }
+          });
+          $.each(clist, function(i, n){
+            var v = $(n).prop("value");
+            if ($(n).prop("checked")){
+              v_array.push(v);
+            }
+          });
+          var url = '/do_something?initial={{ UserName }}&do_type=1'
+          var data = {'members': v_array, 'message': $("#message").val()};
+          var json_data = $.toJSON(data);
+          $.post(url, {f:json_data}, function(result){
+              console.info(result);
+          })
+        });
+        $("#group .checkall").click(function(){
+            var c =  $(this)[0].checked;
+            var checklist = $("input[name='check_list'");
+            checklist.prop('checked', $(this).prop('checked'));
+            console.debug($(this).prop('checked'))
+
+        });
+
+        $("#contact .checkall").click(function(){
+            var c =  $(this)[0].checked;
+            var checklist = $("input[name='c_check_list'");
+            checklist.prop('checked', $(this).prop('checked'));
+            console.debug($(this).prop('checked'))
+        });
+        $("#verify").click(function(){
+          // var all = $("#group .checkall");
+          // var cklist = $("#group input[name='check_list']");
+          // var v_array = [];
+          // var t = "";
+          // $.each(cklist, function(i, n){
+          //     console.info(n);
+          //     var v = $(n).prop('value');
+          //     console.info($(n));
+          //     if ($(n).prop("checked")){
+          //       t = v;
+          //       v_array.push(v)
+          //     }
+          // });
+          // var url = '/do_something?initial={{ UserName }}&do_type=2'
+          // var data = {'members': v_array, 'message': $("#verify_info").val()};
+          // var json_data = $.toJSON(data);
+          // $.post(url, {f:json_data}, function(result){
+          //     console.info(result);
+          // });
+          $.get('/t', function(result){
+              console.info(result);
+          })
+        });
+    })
+</script>
+
